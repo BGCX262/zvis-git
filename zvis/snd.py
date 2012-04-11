@@ -68,7 +68,12 @@ def get_fft_points(sound_filename, fps, fft_pixels, rate = 1, fourierwidth = 0.3
 		frames = f.read_frames(read_len)
 		buff = []
 		for frame in frames:
-			buff.append(sum(frame) / len(frame))
+			# is frame iterable or just one chan?
+			if getattr(frame, '__iter__', False):
+				fval = sum(frame) / len(frame)
+			else:
+				fval = frame
+			buff.append(fval)
 		# TODO: trim to 1024 or so?
 		outfft = fft(buff)
 		spectrum = [
