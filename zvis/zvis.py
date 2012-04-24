@@ -26,9 +26,13 @@ class Layer(object):
 		self.conf_dir = conf_dir
 		self.fps = fps
 		self.size = size
+		self.rate = 1 # 1 data point per frame by default
 		self.props = props
-		self.data = None # some data object for every frame
+		self.data = None # rate data objects for every frame
 		self.load()
+	
+	def get_num_frames(self):
+		return len(self.data) / self.rate
 
 class ImageLayer(Layer):
 	"""Static image whose opacity is controlled by audio volume."""
@@ -84,6 +88,8 @@ class SpectroLayer(Layer):
 				draw.point(
 					(pos + x_pad, self.size[1] - y - 1),
 					tuple(self.colour + [255*(val * val)/160]))
+		#self.specimg.save(
+				#os.path.join(out_dir, '%s.png' % self.props['audio']))
 	
 	def draw(self, canvas, num_frame):
 		layer = self.specimg.crop(
@@ -129,7 +135,7 @@ class Visualisation(object):
 			for name in layer_names]
 		# load all images assiated to layers
 		
-		for num_frame in xrange(len(layers[0].data)):
+		for num_frame in xrange(layers[0].get_num_frames()):
 			my_img = self.bg.copy()
 			for layer_num, layer_name in enumerate(layer_names):
 				layer = layers[layer_num]
